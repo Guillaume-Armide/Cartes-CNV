@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<title>Cartes CNV</title>
+<style>
+:root{--violet:#4f46e5;--violet-clair:#eef2ff;--gris:#f3f4f6;--texte:#1f2937;--bord:#e5e7eb}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f8fafc;color:var(--texte);padding-bottom:32px}
+header{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:20px 16px 24px;text-align:center}
+header h1{margin:0;font-size:24px}
+header p{margin:6px 0 0;opacity:.9;font-size:14px}
+main{max-width:680px;margin:0 auto;padding:16px}
+.tabs{display:flex;background:#e5e7eb;border-radius:14px;padding:4px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:transparent;padding:12px;border-radius:11px;font-size:16px;font-weight:600;color:#4b5563}
+.tabs button.actif{background:#fff;color:var(--violet);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.section{display:none}
+.section.visible{display:block}
+.tirage{background:#fff;border-radius:18px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:16px}
+.nombre{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.nombre label{font-weight:600}
+.nombre select{flex:1;padding:12px;border:1px solid var(--bord);border-radius:12px;font-size:16px}
+.boutons{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:600;cursor:pointer}
+.primaire{background:var(--violet);color:#fff}
+.secondaire{background:var(--gris);color:var(--texte)}
+.carte-zone{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:16px}
+.carte{background:var(--violet-clair);border:2px solid #c7d2fe;border-radius:16px;min-height:110px;display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;font-size:20px;font-weight:700;color:#3730a3;word-break:break-word}
+.vide{color:#6b7280;font-weight:500;font-size:16px;grid-column:1/-1;background:#fff;border:1px dashed var(--bord)}
+.edition{background:#fff;border-radius:18px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.edition h2{margin:0 0 4px;font-size:18px}
+.aide{color:#6b7280;font-size:14px;margin:0 0 12px}
+textarea{width:100%;min-height:260px;padding:12px;border:1px solid var(--bord);border-radius:12px;font-size:16px;line-height:1.5;resize:vertical}
+.actions-edition{display:flex;gap:10px;margin-top:12px}
+.actions-edition button{flex:1}
+.compteur{font-size:14px;color:#6b7280;margin-top:8px;text-align:center}
+footer{text-align:center;color:#6b7280;font-size:13px;padding:16px}
+</style>
+</head>
+<body>
+<header>
+<h1>Cartes CNV</h1>
+<p>Tirage de sentiments et de besoins</p>
+</header>
+<main>
+<div class="tabs">
+<button id="onglet-sentiments" class="actif" onclick="changerOnglet('sentiments')">Sentiments</button>
+<button id="onglet-besoins" onclick="changerOnglet('besoins')">Besoins</button>
+</div>
+
+<section id="section-sentiments" class="section visible">
+<div class="tirage">
+<div class="nombre">
+<label for="nb-sentiments">Nombre de cartes</label>
+<select id="nb-sentiments">
+<option value="1">1 carte</option>
+<option value="2">2 cartes</option>
+<option value="3">3 cartes</option>
+<option value="4">4 cartes</option>
+<option value="5">5 cartes</option>
+</select>
+</div>
+<div class="boutons">
+<button class="primaire" onclick="tirer('sentiments')">Tirer</button>
+<button class="secondaire" onclick="remettre('sentiments')">Remettre</button>
+</div>
+<div class="carte-zone" id="cartes-sentiments"><div class="vide">Aucune carte tirée</div></div>
+<div class="compteur" id="compteur-sentiments"></div>
+</div>
+<div class="edition">
+<h2>Modifier les sentiments</h2>
+<p class="aide">Un sentiment par ligne. Les modifications sont enregistrées automatiquement.</p>
+<textarea id="texte-sentiments" oninput="enregistrer('sentiments')"></textarea>
+<div class="actions-edition">
+<button class="secondaire" onclick="reinitialiser('sentiments')">Restaurer la liste initiale</button>
+</div>
+</div>
+</section>
+
+<section id="section-besoins" class="section">
+<div class="tirage">
+<div class="nombre">
+<label for="nb-besoins">Nombre de cartes</label>
+<select id="nb-besoins">
+<option value="1">1 carte</option>
+<option value="2">2 cartes</option>
+<option value="3">3 cartes</option>
+<option value="4">4 cartes</option>
+<option value="5">5 cartes</option>
+</select>
+</div>
+<div class="boutons">
+<button class="primaire" onclick="tirer('besoins')">Tirer</button>
+<button class="secondaire" onclick="remettre('besoins')">Remettre</button>
+</div>
+<div class="carte-zone" id="cartes-besoins"><div class="vide">Aucune carte tirée</div></div>
+<div class="compteur" id="compteur-besoins"></div>
+</div>
+<div class="edition">
+<h2>Modifier les besoins</h2>
+<p class="aide">Un besoin par ligne. Les modifications sont enregistrées automatiquement.</p>
+<textarea id="texte-besoins" oninput="enregistrer('besoins')"></textarea>
+<div class="actions-edition">
+<button class="secondaire" onclick="reinitialiser('besoins')">Restaurer la liste initiale</button>
+</div>
+</div>
+</section>
+</main>
+<footer>Les cartes tirées sont retirées du paquet jusqu’au bouton « Remettre ».</footer>
+
+<script>
+const LISTES_INITIALES = {
+"sentiments": ["admiratif·ve","alerte","amusé·e","tranquille","attendri·e","attentif·ve","ravi·e","bouleversé·e","en effervescence","en extase","émerveillé·e","enjoué·e","enthousiaste","ragaillardi·e","rassuré·e","reconnaissant·e","réjoui·e","satisfait·e","à bout","désemparé·e","abasourdi·e","contrarié·e","abattu·e","désespéré·e","crispé·e","déstabilisé·e","anxieux·se","effaré·e","dégoûté·e","démoralisé·e","dépassé·e","excédé·e","surpris·e","nerveux·se","furieux·se","fâché·e","à l'aise","troublé·e","partagé·e","tendu·e","agacé·e","perdu·e","joyeux·se","triste","inquiet·ète","exaspéré·e","avoir peur","mal à l'aise","en détresse","démuni·e","angoissé·e","découragé·e","content·e","enchanté·e","léger·ère","euphorique","ému·e","touché·e","centré·e","confiant·e","excité·e","régénéré·e","partant·e","grognon·ne","mécontent","amer·ère","frustré·e","en avoir marre","irrité·e","hors de soi","choqué·e","atterré·e","écœuré·e","honteux·se","débordé·e","démotivé·e","souffrant·e","mélancolique","déçu·e","avoir le cafard","déprimé·e","chamboulé·e","dévasté·e","fatigué·e","épuisé·e","gêné·e","perturbé·e","préoccupé·e","affolé·e","paniqué·e","horrifié·e","paralysé·e","sidéré·e","étonné·e","perplexe","s'ennuyer","tiraillé·e","concentré·e","consterné·e","embarrassé·e"],
+"besoins": ["tendresse","intimité","sens","estime de soi","confiance en soi","évolution","créativité","simplicité","appartenance","paix","connexion","contribution","expression","soutien","récréation","humour","rire","célébration","deuil","exploration","action","mouvement","clarté","repères","stimulation","intensité","considération","inspiration","harmonie","beauté","ordre","compagnie","présence","accueil","empathie","capacité d'action","liberté","reconnaissance","sécurité","repos","confort thermique","détente","chaleur humaine","douceur","respiration","lumière","hydratation","alimentation","abri","toucher","contact physique","sexualité","affirmation de soi","respect de son rythme","accomplissement","coopération","partage","équivalence"]
+};
+
+const etat = {
+sentiments: {cartes: [], restantes: []},
+besoins: {cartes: [], restantes: []}
+};
+
+function charger(cle){
+const sauvegarde = localStorage.getItem('cnv-cartes-' + cle);
+etat[cle].cartes = sauvegarde ? JSON.parse(sauvegarde) : [...LISTES_INITIALES[cle]];
+etat[cle].restantes = [...etat[cle].cartes];
+}
+
+function enregistrer(cle){
+etat[cle].cartes = document.getElementById('texte-' + cle).value
+.split('\n').map(x => x.trim()).filter(Boolean);
+etat[cle].restantes = [...etat[cle].cartes];
+localStorage.setItem('cnv-cartes-' + cle, JSON.stringify(etat[cle].cartes));
+afficherCartes(cle, []);
+}
+
+function reinitialiser(cle){
+if(!confirm('Restaurer la liste initiale ? Les cartes ajoutées ou modifiées seront perdues.')) return;
+etat[cle].cartes = [...LISTES_INITIALES[cle]];
+etat[cle].restantes = [...etat[cle].cartes];
+localStorage.setItem('cnv-cartes-' + cle, JSON.stringify(etat[cle].cartes));
+afficher(cle);
+}
+
+function tirer(cle){
+const n = parseInt(document.getElementById('nb-' + cle).value, 10);
+const disponibles = etat[cle].restantes;
+const tirees = [];
+for(let i = 0; i < n && disponibles.length > 0; i++){
+const index = Math.floor(Math.random() * disponibles.length);
+tirees.push(disponibles.splice(index, 1)[0]);
+}
+afficherCartes(cle, tirees);
+}
+
+function remettre(cle){
+etat[cle].restantes = [...etat[cle].cartes];
+afficherCartes(cle, []);
+}
+
+function afficherCartes(cle, tirees){
+const zone = document.getElementById('cartes-' + cle);
+zone.innerHTML = '';
+if(!tirees.length){
+zone.innerHTML = '<div class="vide">Aucune carte tirée</div>';
+} else {
+tirees.forEach(mot => {
+const d = document.createElement('div');
+d.className = 'carte';
+d.textContent = mot;
+zone.appendChild(d);
+});
+}
+const total = etat[cle].cartes.length;
+document.getElementById('compteur-' + cle).textContent =
+total + ' carte(s) dans le paquet • ' + etat[cle].restantes.length + ' restante(s)';
+}
+
+function afficher(cle){
+document.getElementById('texte-' + cle).value = etat[cle].cartes.join('\n');
+afficherCartes(cle, []);
+}
+
+function changerOnglet(cle){
+['sentiments','besoins'].forEach(c => {
+document.getElementById('section-' + c).classList.toggle('visible', c === cle);
+document.getElementById('onglet-' + c).classList.toggle('actif', c === cle);
+});
+}
+
+charger('sentiments');
+charger('besoins');
+afficher('sentiments');
+afficher('besoins');
+</script>
+</body>
+</html>
